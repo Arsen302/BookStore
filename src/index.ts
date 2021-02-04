@@ -1,28 +1,24 @@
-import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {Customer} from "./entity/Customer";
-import * as express from "express"
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+import { Customer } from './models/Customer';
+import * as express from 'express';
 
 const app = express();
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
-createConnection().then(async connection => {
+const startConn = async (): Promise<void> => {
+  try {
+    await createConnection();
+    console.log('DB started working!');
+  } catch (err) {
+    console.log('We have Error', err);
+  }
+};
 
-    console.log("Inserting a new user into the database...");
-    const customer = new Customer();
-    customer.firstName = "Timber";
-    customer.lastName = "Saw";
-    customer.login = "login@mail.com";
-    customer.pass = "asdasd";
-    await connection.manager.save(customer);
-    console.log("Saved a new user with id: " + customer.id);
-
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(Customer);
-    console.log("Loaded users: ", users);
-
-}).catch(error => console.log(error));
-
-app.listen(PORT, () => {
-    console.log(`It's a life on ${PORT} port...`)
-})
+startConn()
+  .then((): void => {
+    app.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
+  })
+  .catch((err): void => {
+    console.log(err);
+  });
